@@ -5,7 +5,7 @@ Welcome to **NeuroCV**, an advanced AI-driven resume analyzer built with FastAPI
 
 ---
 
-## ** Project Overview**
+## Project Overview
 - Evaluate the relevance of a resume.
 - Provide actionable insights for resume optimization.
 - **Supports only PDF format** for document parsing and analysis.
