@@ -48,3 +48,10 @@ To install and set up NeuroCV, follow these steps:
 
 **Enhancing Resume Analysis with AI – NeuroCV** 📄🤖
 
+
+
+![image](https://github.com/user-attachments/assets/d70f5b9d-f729-467b-be2a-4847b9f535ec)
+![image](https://github.com/user-attachments/assets/f81dffb2-e5cf-4d5b-8983-ef4444d01e3b)
+![image](https://github.com/user-attachments/assets/2af3e449-e82d-484e-8295-ccca01c45a00)
+![image](https://github.com/user-attachments/assets/05128f88-5880-4bcd-99e6-6aa7360329bc)
+
