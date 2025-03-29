@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Consultant</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f94144;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e1e5eb;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .upload-section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: block;
+            padding: 1.5rem;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-label:hover {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .file-name {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary);
+        }
+
+        .btn:disabled {
+            background-color: #adb5bd;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .result-section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e1e5eb;
+        }
+
+        .result-content {
+            white-space: pre-line;
+        }
+
+        .section-title {
+            color: var(--primary);
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.25rem;
+            border-bottom: 1px solid #e1e5eb;
+        }
+
+        .rating {
+            display: inline-flex;
+            align-items: center;
+            background-color: #e9ecef;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .rating.good {
+            color: #2b8a3e;
+            background-color: #d3f9d8;
+        }
+
+        .rating.medium {
+            color: #e67700;
+            background-color: #ffec99;
+        }
+
+        .rating.bad {
+            color: #c92a2a;
+            background-color: #ffc9c9;
+        }
+
+        .recommendation {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert-error {
+            background-color: #fff3bf;
+            border-left: 4px solid #ffd43b;
+            color: #5f3dc4;
+        }
+
+        .print-btn {
+            background-color: #495057;
+            margin-left: 0.5rem;
+        }
+
+        @media print {
+            .upload-section, .no-print {
+                display: none;
+            }
+
+            .result-section {
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Resume Consultant</h1>
+            <p class="subtitle">Professional analysis and improvement recommendations for your resume</p>
+        </header>
+
+        <section class="upload-section">
+            <div class="form-group">
+                <input type="file" id="fileInput" class="file-input" accept=".pdf">
+                <label for="fileInput" class="file-label" id="fileLabel">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4361ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <div><strong>Click to upload your resume</strong></div>
+                    <div>Only PDF files are supported</div>
+                    <div id="fileName" class="file-name"></div>
+                </label>
+            </div>
+
+            <div class="alert alert-error" id="errorAlert"></div>
+
+            <button id="analyzeBtn" class="btn" disabled>
+                <span id="btnText">Analyze Resume</span>
+            </button>
+        </section>
+
+        <section class="result-section" id="resultSection">
+            <div class="result-header">
+                <h2 id="resultTitle">Resume Analysis</h2>
+                <button id="printBtn" class="btn print-btn no-print">Print</button>
+            </div>
+            <div class="result-content" id="resultContent"></div>
+        </section>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileLabel = document.getElementById('fileLabel');
+        const fileName = document.getElementById('fileName');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const btnText = document.getElementById('btnText');
+        const errorAlert = document.getElementById('errorAlert');
+        const resultSection = document.getElementById('resultSection');
+        const resultContent = document.getElementById('resultContent');
+        const resultTitle = document.getElementById('resultTitle');
+        const printBtn = document.getElementById('printBtn');
+
+        let selectedFile = null;
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+
+                if (!selectedFile.name.toLowerCase().endsWith('.pdf')) {
+                    showError('Please select a PDF file');
+                    analyzeBtn.disabled = true;
+                    return;
+                }
+
+                fileName.textContent = selectedFile.name;
+                analyzeBtn.disabled = false;
+                hideError();
+            }
+        });
+
+        analyzeBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            analyzeBtn.disabled = true;
+            btnText.innerHTML = '<span class="loading"></span> Analyzing...';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+
+                const response = await axios.post('/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+
+                if (response.data.status === 'success') {
+                    resultTitle.textContent = `Resume Analysis: ${selectedFile.name}`;
+                    resultContent.innerHTML = formatAnalysis(response.data.analysis);
+                    resultSection.style.display = 'block';
+                    resultSection.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    showError(response.data.message || 'Error analyzing resume');
+                }
+            } catch (error) {
+                showError(error.response?.data?.message || error.message || 'Unknown error');
+            } finally {
+                analyzeBtn.disabled = false;
+                btnText.textContent = 'Analyze Resume';
+            }
+        });
+
+        printBtn.addEventListener('click', () => {
+            window.print();
+        });
+
+        function showError(message) {
+            errorAlert.textContent = message;
+            errorAlert.style.display = 'block';
+        }
+
+        function hideError() {
+            errorAlert.style.display = 'none';
+        }
+
+        function formatAnalysis(text) {
+            const sections = text.split('\n\n');
+            let html = '';
+
+            sections.forEach(section => {
+                section = section.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+                if (section.startsWith('## ')) {
+                    const title = section.replace('## ', '');
+                    html += `<h3 class="section-title">${title}</h3>`;
+                } else if (section.trim().startsWith('- ') || section.trim().startsWith('* ')) {
+                    const listItems = section.split('\n');
+                    html += '<ul>';
+                    listItems.forEach(item => {
+                        html += `<li>${item.replace(/^[-\*] /, '').trim()}</li>`;
+                    });
+                    html += '</ul>';
+                } else if (section.includes(':')) {
+                    const lines = section.split('\n');
+                    html += '<div class="recommendation">';
+                    lines.forEach(line => {
+                        if (line.includes(':')) {
+                            const [key, value] = line.split(':', 2);
+                            html += `<p><strong>${key.trim()}:</strong> ${value.trim()}</p>`;
+                        } else {
+                            html += `<p>${line.trim()}</p>`;
+                        }
+                    });
+                    html += '</div>';
+                } else {
+                    html += `<p>${section}</p>`;
+                }
+            });
+
+            return html;
+        }
+    </script>
+</body>
+</html>

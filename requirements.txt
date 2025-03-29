@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+python-multipart
+google-generativeai
+pymupdf
+python-dotenv
+axios
