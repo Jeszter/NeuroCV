@@ -1,5 +1,5 @@
  
-# **NeuroCV: AI-Powered Resume Analyzer**
+# **NeuroCV: AI Resume Analyzer**
 
 Welcome to **NeuroCV**, an advanced AI-driven resume analyzer built with FastAPI and Python. This project is designed to extract, analyze, and interpret key resume details, making it an essential tool for recruiters, HR professionals, and job seekers looking to optimize their resumes.
 
